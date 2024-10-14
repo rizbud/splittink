@@ -2,6 +2,8 @@ import "./bootstrap";
 import { createApp, h } from "vue";
 import { createInertiaApp } from "@inertiajs/vue3";
 
+import Vue3Toastify from "vue3-toastify";
+
 import MainLayout from "./Layouts/MainLayout.vue";
 
 createInertiaApp({
@@ -14,6 +16,19 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
+            .use(Vue3Toastify, {
+                position: "top-right",
+                duration: 3000,
+                className: "toastify",
+                canPause: false,
+                canReplay: false,
+                closeOnClick: true,
+                closeOnEscape: true,
+                pauseOnFocusLoss: true,
+                pauseOnHover: false,
+                maxToasts: 5,
+                newestOnTop: true,
+            })
             .mount(el);
     },
 });

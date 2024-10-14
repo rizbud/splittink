@@ -1,5 +1,6 @@
 <script setup>
 import { Head } from "@inertiajs/vue3";
+import "vue3-toastify/dist/index.css";
 import { Header, Footer } from "../Components";
 
 const appName = import.meta.env.VITE_APP_NAME;
