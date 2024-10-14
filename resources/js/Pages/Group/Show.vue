@@ -35,20 +35,25 @@ onMounted(() => {
         <title>{{ group.name }} | {{ appName }}</title>
     </Head>
 
-    <div>
-        <div class="flex justify-between items-start mb-6">
-            <div>
-                <h1 class="text-2xl font-semibold">{{ group.name }}</h1>
-                <p class="text-sm text-gray-500">{{ group.description }}</p>
-                <p>
+    <div class="flex flex-col gap-6">
+        <div class="flex justify-between items-start gap-4 w-full">
+            <div class="flex flex-col break-all">
+                <h1 class="text-2xl font-semibold">
+                    {{ group.name }}
+                </h1>
+                <p class="text-sm text-gray-500">
+                    {{ group.description }}
+                </p>
+                <p class="text-sm text-gray-500">
                     {{ participants.join(", ") }}
                 </p>
             </div>
+
             <button @click="router.get(`/groups/${group.slug}/edit`)">
                 <i class="fas fa-edit"></i>
             </button>
         </div>
 
-        <div></div>
+        <div>Testt</div>
     </div>
 </template>

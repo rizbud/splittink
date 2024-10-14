@@ -39,5 +39,9 @@ const updateValue = (event) => {
             @input="updateValue"
             class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-0"
         />
+
+        <span class="text-xs text-gray-500 self-end">
+            {{ props.modelValue.length }}/{{ $attrs.maxlength }}
+        </span>
     </div>
 </template>

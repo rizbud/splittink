@@ -46,9 +46,11 @@ class GroupController extends Controller
     public function create(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|max:100',
+            'description' => 'nullable|max:255',
             'currency_id' => 'required',
             'participants' => 'required|array|min:2',
+            'participants.*.name' => 'required|string|max:100',
         ]);
 
         $name = $request->input('name');
@@ -66,7 +68,7 @@ class GroupController extends Controller
         $participants = [];
         foreach ($request->input('participants') as $participant) {
             $participants[] = new Participant([
-                'name' => $participant
+                'name' => $participant['name'],
             ]);
         }
 
@@ -78,10 +80,11 @@ class GroupController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|max:100',
+            'description' => 'nullable|max:255',
             'currency_id' => 'required',
             'participants' => 'required|array|min:2',
-            'participants.*.name' => 'required|string',
+            'participants.*.name' => 'required|string|max:100',
         ]);
 
         $group = Group::findOrFail($id);

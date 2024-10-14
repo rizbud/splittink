@@ -1,53 +1,10 @@
 <script setup>
-import { reactive, ref, computed } from "vue";
-import { router, Head, usePage } from "@inertiajs/vue3";
-import axios from "axios";
-import { GroupForm, Input, PrimaryButton } from "../../Components";
+import { Head, usePage } from "@inertiajs/vue3";
+import { GroupForm } from "../../Components";
 
 const appName = import.meta.env.VITE_APP_NAME;
 
 const { currencies } = usePage().props;
-
-const participant = ref("");
-const isLoading = ref(false);
-
-const form = reactive({
-    name: "",
-    description: "",
-    participants: [],
-    currency_id: 1,
-});
-
-const isDisabled = computed(() => {
-    return !form.name || form.participants.length < 2 || isLoading.value;
-});
-
-const addParticipant = () => {
-    form.participants.push(participant.value);
-    participant.value = "";
-};
-
-const removeParticipant = (index) => {
-    form.participants.splice(index, 1);
-};
-
-const submitForm = async () => {
-    try {
-        isLoading.value = true;
-        const response = await axios.post("/groups", form);
-
-        if (response.status === 201) {
-            router.get(`/groups/${response.data.slug}`);
-        } else {
-            throw new Error();
-        }
-    } catch (error) {
-        console.error(error);
-        alert("Failed to create the group.");
-    } finally {
-        isLoading.value = false;
-    }
-};
 </script>
 
 <template>

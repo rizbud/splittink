@@ -45,19 +45,23 @@ const submitForm = async () => {
     try {
         isLoading.value = true;
         const response = isEditing
-            ? await axios.put(`/groups/${group.id}`, form)
+            ? await axios.put(`/groups/${props.group.id}`, form)
             : await axios.post("/groups", form);
 
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
+            router.get(`/groups/${response.data.slug}`);
             toast.success(
                 `Group ${isEditing ? "updated" : "created"} successfully.`
             );
-            router.get(`/groups/${response.data.slug}`);
         } else {
             throw new Error();
         }
     } catch (error) {
-        toast.error(`Failed to ${isEditing ? "update" : "create"} the group.`);
+        const errorMessage =
+            error.response?.data?.message ||
+            error.message ||
+            `Failed to ${isEditing ? "update" : "create"} group.`;
+        toast.error(errorMessage);
     } finally {
         isLoading.value = false;
     }
@@ -72,6 +76,7 @@ const submitForm = async () => {
             label="Name"
             placeholder="Enter the name of the group"
             required
+            maxlength="100"
         />
 
         <Input
@@ -80,16 +85,17 @@ const submitForm = async () => {
             v-model="form.description"
             label="Description"
             placeholder="Give a brief description of the group."
+            maxlength="255"
         />
 
-        <div class="flex flex-col gap-1">
+        <div class="flex flex-col">
             <label for="participants" class="block text-sm">
                 Participants
             </label>
 
             <ul
                 v-if="form.participants.length"
-                class="mt-2 flex flex-col gap-2"
+                class="mt-1 mb-2 flex flex-col gap-2"
             >
                 <li
                     v-for="(participant, index) in form.participants"
@@ -101,6 +107,8 @@ const submitForm = async () => {
                         type="text"
                         v-model="form.participants[index].name"
                         class="w-full border-l border-t border-b border-gray-300 rounded-l p-2 focus:outline-none focus:ring-0"
+                        :placeholder="`Participant ${index + 1}`"
+                        maxlength="100"
                     />
                     <button
                         type="button"

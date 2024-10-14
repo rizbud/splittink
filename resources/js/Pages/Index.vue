@@ -27,7 +27,9 @@ onMounted(() => {
                     :href="`/groups/${group.slug}`"
                 >
                     <div>
-                        <h3 class="font-medium">{{ group.name }}</h3>
+                        <h3 class="font-medium line-clamp-1">
+                            {{ group.name }}
+                        </h3>
                         <p class="text-sm text-gray-500">
                             Last visited on
                             {{
