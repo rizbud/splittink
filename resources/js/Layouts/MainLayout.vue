@@ -21,7 +21,7 @@ const appName = import.meta.env.VITE_APP_NAME;
     <div class="flex flex-col min-h-screen">
         <Header />
 
-        <main class="flex flex-col gap-4 px-6 pt-4 pb-10 grow">
+        <main class="flex flex-col gap-4 px-6 pt-4 pb-10 grow text-slate-900">
             <slot />
         </main>
 

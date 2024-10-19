@@ -51,6 +51,9 @@ onMounted(() => {
                 <p class="text-sm text-slate-600">
                     {{ participants.join(", ") }}
                 </p>
+                <span class="text-xs text-slate-600">
+                    Created at {{ formatDate(group.created_at) }}
+                </span>
             </div>
 
             <button
@@ -67,7 +70,7 @@ onMounted(() => {
 
                 <Link
                     :href="`/groups/${group.slug}/add-bill`"
-                    class="text-emerald-500 font-medium"
+                    class="text-emerald-600 font-medium"
                 >
                     <i class="fas fa-plus-circle"></i>
                     Add Bill

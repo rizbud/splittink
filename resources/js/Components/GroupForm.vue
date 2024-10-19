@@ -34,7 +34,7 @@ const addParticipant = () => {
 
 const removeParticipant = (index) => {
     const confirmRemove = isEditing
-        ? confirm(
+        ? window.confirm(
               `Are you sure you want to remove ${form.participants[index].name}?`
           )
         : true;

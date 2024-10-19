@@ -15,7 +15,7 @@ class BillController extends Controller
     public function show(Request $request, $slug, $billId)
     {
         $group = Group::where('slug', $slug)
-            ->select('id', 'slug', 'name', 'currency_id')
+            ->select('id', 'slug', 'name', 'currency_id', 'created_at')
             ->with(['currency', 'participants' => function ($query) {
                 $query->select('id', 'group_id', 'name');
             }])
@@ -101,16 +101,19 @@ class BillController extends Controller
         $bill = $group->bills()->create([
             'name' => $request->name,
             'currency_id' => $request->currency_id,
-            'amount' => $request->amount,
+            'amount' => round($request->amount, $selectedCurrency->decimal_digits),
             'amount_in_base_currency' => $amountInBaseCurrency,
             'splitting_method' => 'equally',
         ]);
 
         $participants = [];
         foreach ($request->participants as $participant) {
+            $participantId = $participant['participant_id'];
+            $paidAmount = round($participant['paid_amount'], $selectedCurrency->decimal_digits);
             $paidAmountInBaseCurrency = round($participant['paid_amount'] * $rate, $baseCurrency->decimal_digits);
-            $participants[$participant['participant_id']] = [
-                'paid_amount' => $participant['paid_amount'],
+
+            $participants[$participantId] = [
+                'paid_amount' => $paidAmount,
                 'paid_amount_in_base_currency' => $paidAmountInBaseCurrency,
             ];
         }
@@ -158,15 +161,18 @@ class BillController extends Controller
         $bill->update([
             'name' => $request->name,
             'currency_id' => $request->currency_id,
-            'amount' => $request->amount,
+            'amount' => round($request->amount, $selectedCurrency->decimal_digits),
             'amount_in_base_currency' => $amountInBaseCurrency,
         ]);
 
         $participants = [];
         foreach ($request->participants as $participant) {
+            $participantId = $participant['participant_id'];
+            $paidAmount = round($participant['paid_amount'], $selectedCurrency->decimal_digits);
             $paidAmountInBaseCurrency = round($participant['paid_amount'] * $rate, $baseCurrency->decimal_digits);
-            $participants[$participant['participant_id']] = [
-                'paid_amount' => $participant['paid_amount'],
+
+            $participants[$participantId] = [
+                'paid_amount' => $paidAmount,
                 'paid_amount_in_base_currency' => $paidAmountInBaseCurrency,
             ];
         }

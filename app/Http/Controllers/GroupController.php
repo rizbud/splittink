@@ -14,7 +14,7 @@ class GroupController extends Controller
     public function show(Request $request, $slug)
     {
         $group = Group::where('slug', $slug)
-            ->select('id', 'name', 'description', 'slug', 'currency_id')
+            ->select('id', 'name', 'description', 'slug', 'currency_id', 'created_at')
             ->with([
                 'currency' => function ($query) {
                     $query->select('id', 'name', 'code', 'symbol', 'decimal_digits');
