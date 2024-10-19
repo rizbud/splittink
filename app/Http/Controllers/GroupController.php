@@ -14,11 +14,24 @@ class GroupController extends Controller
     public function show(Request $request, $slug)
     {
         $group = Group::where('slug', $slug)
-                        ->select('id', 'name', 'description', 'slug', 'currency_id')
-                        ->with(['participants' => function ($query) {
-                            $query->select('id', 'group_id', 'name');
-                        }])
-                        ->firstOrFail();
+            ->select('id', 'name', 'description', 'slug', 'currency_id')
+            ->with([
+                'currency' => function ($query) {
+                    $query->select('id', 'name', 'code', 'symbol', 'decimal_digits');
+                },
+                'participants' => function ($query) {
+                    $query->select('id', 'group_id', 'name');
+                },
+                'bills' => function ($query) {
+                    $query->select('id', 'group_id', 'name', 'currency_id', 'amount', 'amount_in_base_currency', 'created_at')
+                        ->with([
+                            'currency' => function ($query) {
+                                $query->select('id', 'code', 'symbol', 'decimal_digits');
+                            }
+                        ]);
+                }
+            ])
+            ->firstOrFail();
 
         // If the request url is edit, return the edit view
         if ($request->is('groups/' . $slug . '/edit')) {
@@ -113,8 +126,8 @@ class GroupController extends Controller
 
         if (!empty($participantIds)) {
             Participant::where('group_id', $group->id)
-                        ->whereNotIn('id', $participantIds)
-                        ->delete();
+                ->whereNotIn('id', $participantIds)
+                ->delete();
         }
 
         if (!empty($participantsToCreate)) {

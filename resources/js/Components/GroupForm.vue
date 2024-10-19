@@ -89,7 +89,10 @@ const submitForm = async () => {
         />
 
         <div class="flex flex-col">
-            <label for="participants" class="block text-sm">
+            <label
+                for="participants"
+                class="inline-block text-sm text-slate-600"
+            >
                 Participants
             </label>
 
@@ -143,7 +146,9 @@ const submitForm = async () => {
         </div>
 
         <div class="flex flex-col gap-1">
-            <label for="currency" class="block text-sm"> Base Currency </label>
+            <label for="currency" class="inline-block text-sm">
+                Base Currency
+            </label>
 
             <select
                 id="currency"
@@ -164,7 +169,7 @@ const submitForm = async () => {
 
         <PrimaryButton
             type="submit"
-            text="Save Changes"
+            :text="isEditing ? 'Save Changes' : 'Create Group'"
             :disabled="isDisabled"
             :is-loading="isLoading"
         />

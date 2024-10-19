@@ -15,4 +15,11 @@ class Participant extends Model
     {
         return $this->belongsTo(Group::class);
     }
+
+    public function bills()
+{
+    return $this->belongsToMany(Bill::class, 'bill_participants')
+                ->withPivot('paid_amount', 'paid_amount_in_base_currency')
+                ->withTimestamps();
+}
 }

@@ -1,6 +1,7 @@
 <script setup>
 import { Link } from "@inertiajs/vue3";
 import { ref, onMounted } from "vue";
+import { formatDate } from "../utils";
 
 const recentGroups = ref([]);
 
@@ -30,21 +31,9 @@ onMounted(() => {
                         <h3 class="font-medium line-clamp-1">
                             {{ group.name }}
                         </h3>
-                        <p class="text-sm text-gray-500">
+                        <p class="text-sm text-slate-600">
                             Last visited on
-                            {{
-                                new Date(group.last_visited).toLocaleString(
-                                    "en-US",
-                                    {
-                                        month: "short",
-                                        day: "numeric",
-                                        year: "numeric",
-                                        weekday: "short",
-                                        hour: "numeric",
-                                        minute: "numeric",
-                                    }
-                                )
-                            }}
+                            {{ formatDate(group.last_visited) }}
                         </p>
                     </div>
 
@@ -54,7 +43,7 @@ onMounted(() => {
         </ul>
 
         <div v-else class="flex flex-col items-center">
-            <p class="text-gray-500">No recent groups found.</p>
+            <p class="text-slate-600">No recent groups found.</p>
             <Link href="/new" class="text-emerald-600">
                 <button
                     class="bg-emerald-600 text-white px-4 py-2 rounded-lg mt-4 hover:bg-emerald-700 focus:outline-none focus:ring-0"

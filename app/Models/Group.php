@@ -20,4 +20,9 @@ class Group extends Model
     {
         return $this->hasMany(Participant::class);
     }
+
+    public function bills()
+    {
+        return $this->hasMany(Bill::class);
+    }
 }
