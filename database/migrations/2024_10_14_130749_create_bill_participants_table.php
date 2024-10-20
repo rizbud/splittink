@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('participant_id')->constrained()->onDelete('cascade');
             $table->float('paid_amount');
             $table->float('paid_amount_in_base_currency');
+            $table->float('unpaid_amount');
+            $table->float('unpaid_amount_in_base_currency');
             $table->timestamps();
         });
     }

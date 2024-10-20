@@ -19,7 +19,7 @@ class Participant extends Model
     public function bills()
 {
     return $this->belongsToMany(Bill::class, 'bill_participants')
-                ->withPivot('paid_amount', 'paid_amount_in_base_currency')
+                ->withPivot('paid_amount', 'paid_amount_in_base_currency', 'unpaid_amount', 'unpaid_amount_in_base_currency')
                 ->withTimestamps();
 }
 }

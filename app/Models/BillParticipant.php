@@ -14,6 +14,8 @@ class BillParticipant extends Model
         'participant_id',
         'paid_amount',
         'paid_amount_in_base_currency',
+        'unpaid_amount',
+        'unpaid_amount_in_base_currency',
     ];
 
     public function bill()

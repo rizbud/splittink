@@ -96,25 +96,32 @@ class BillController extends Controller
         $selectedCurrency = Currency::find($request->currency_id);
         $selectedRate = $selectedCurrency->exchange_rate;
         $rate = (1 / $selectedRate) * $baseRate;
-        $amountInBaseCurrency = round($request->amount * $rate, $baseCurrency->decimal_digits);
+        $amount = $request->amount;
+        $amountInBaseCurrency = round($amount * $rate, $baseCurrency->decimal_digits);
 
         $bill = $group->bills()->create([
             'name' => $request->name,
             'currency_id' => $request->currency_id,
-            'amount' => round($request->amount, $selectedCurrency->decimal_digits),
+            'amount' => round($amount, $selectedCurrency->decimal_digits),
             'amount_in_base_currency' => $amountInBaseCurrency,
             'splitting_method' => 'equally',
         ]);
+
+        $amountPerParticipant = round($amount / count($request->participants), $selectedCurrency->decimal_digits);
 
         $participants = [];
         foreach ($request->participants as $participant) {
             $participantId = $participant['participant_id'];
             $paidAmount = round($participant['paid_amount'], $selectedCurrency->decimal_digits);
             $paidAmountInBaseCurrency = round($participant['paid_amount'] * $rate, $baseCurrency->decimal_digits);
+            $unpaidAmount = round($amountPerParticipant - $paidAmount, $selectedCurrency->decimal_digits);
+            $unpaidAmountInBaseCurrency = round($unpaidAmount * $rate, $baseCurrency->decimal_digits);
 
             $participants[$participantId] = [
                 'paid_amount' => $paidAmount,
                 'paid_amount_in_base_currency' => $paidAmountInBaseCurrency,
+                'unpaid_amount' => $unpaidAmount,
+                'unpaid_amount_in_base_currency' => $unpaidAmountInBaseCurrency,
             ];
         }
 
@@ -154,26 +161,34 @@ class BillController extends Controller
         $selectedCurrency = Currency::find($request->currency_id);
         $selectedRate = $selectedCurrency->exchange_rate;
         $rate = (1 / $selectedRate) * $baseRate;
-        $amountInBaseCurrency = round($request->amount * $rate, $baseCurrency->decimal_digits);
+        $amount = $request->amount;
+        $amountInBaseCurrency = round($amount * $rate, $baseCurrency->decimal_digits);
 
         $bill = Bill::findOrFail($billId);
 
         $bill->update([
             'name' => $request->name,
             'currency_id' => $request->currency_id,
-            'amount' => round($request->amount, $selectedCurrency->decimal_digits),
+            'amount' => round($amount, $selectedCurrency->decimal_digits),
             'amount_in_base_currency' => $amountInBaseCurrency,
         ]);
+
+
+        $amountPerParticipant = round($amount / count($request->participants), $selectedCurrency->decimal_digits);
 
         $participants = [];
         foreach ($request->participants as $participant) {
             $participantId = $participant['participant_id'];
             $paidAmount = round($participant['paid_amount'], $selectedCurrency->decimal_digits);
             $paidAmountInBaseCurrency = round($participant['paid_amount'] * $rate, $baseCurrency->decimal_digits);
+            $unpaidAmount = round($amountPerParticipant - $paidAmount, $selectedCurrency->decimal_digits);
+            $unpaidAmountInBaseCurrency = round($unpaidAmount * $rate, $baseCurrency->decimal_digits);
 
             $participants[$participantId] = [
                 'paid_amount' => $paidAmount,
                 'paid_amount_in_base_currency' => $paidAmountInBaseCurrency,
+                'unpaid_amount' => $unpaidAmount,
+                'unpaid_amount_in_base_currency' => $unpaidAmountInBaseCurrency,
             ];
         }
 
