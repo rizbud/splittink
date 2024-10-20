@@ -97,6 +97,21 @@ const findParticipant = (participantId) => {
     );
 };
 
+const handleChangeParticipants = (participantId) => {
+    const participant = findParticipant(participantId);
+    if (participant) {
+        form.participants = form.participants.filter(
+            (participant) => participant.participantId !== participantId
+        );
+    } else {
+        form.participants.push(
+            participants.find(
+                (participant) => participant.participantId === participantId
+            )
+        );
+    }
+};
+
 const hasPaid = (participantId) => {
     const participant = findParticipant(participantId);
     return participant?.hasPaid;
@@ -107,7 +122,7 @@ const handleHasPaid = (participantId) => {
     participant.hasPaid = !participant.hasPaid;
 };
 
-const submitForm = async () => {
+const handleSubmitForm = async () => {
     const formParticipants = form.participants.map((participant) => ({
         participant_id: participant.participantId,
         paid_amount: participant.hasPaid ? participant.paidAmount : 0,
@@ -174,7 +189,7 @@ const handleDelete = async () => {
 
 <template>
     <form
-        @submit.prevent="submitForm"
+        @submit.prevent="handleSubmitForm"
         class="flex flex-col gap-4 text-slate-600"
     >
         <Input
@@ -240,8 +255,16 @@ const handleDelete = async () => {
                         <input
                             type="checkbox"
                             :id="`participant-${participant.participantId}`"
-                            :value="participant"
-                            v-model="form.participants"
+                            :value="participant.id"
+                            :checked="
+                                findParticipant(participant.participantId)
+                            "
+                            @change="
+                                () =>
+                                    handleChangeParticipants(
+                                        participant.participantId
+                                    )
+                            "
                             class="focus:ring-0"
                         />
                         <label
