@@ -6,9 +6,9 @@ const appName = import.meta.env.VITE_APP_NAME;
 
 <template>
     <header
-        class="bg-emerald-600 text-white text-center p-4 sticky top-0 z-10 flex justify-between items-center"
+        class="bg-emerald-600 text-white text-center px-6 py-3 sticky top-0 z-10 flex justify-between items-center"
     >
-        <Link href="/" class="text-3xl font-bold italic hover:opacity-80">
+        <Link href="/" class="text-2xl font-bold italic hover:opacity-80">
             {{ appName }}
         </Link>
 
