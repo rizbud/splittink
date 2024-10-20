@@ -45,7 +45,10 @@ const { bill, group, bill_participants, currencies } = usePage().props;
             <span class="text-2xl font-semibold">
                 {{ group.currency.symbol
                 }}{{ formatThousands(bill.amount_in_base_currency) }}
-                <span class="text-base font-normal text-slate-600">
+                <span
+                    class="text-base font-normal text-slate-600"
+                    v-if="group.currency_id !== bill.currency_id"
+                >
                     ({{ bill.currency.symbol
                     }}{{ formatThousands(bill.amount) }})
                 </span>
@@ -60,28 +63,43 @@ const { bill, group, bill_participants, currencies } = usePage().props;
                 <li
                     v-for="participant in bill_participants"
                     :key="participant.id"
-                    class="flex items-center justify-between gap-4 border-b px-2 py-1 w-full"
+                    class="flex items-center justify-between gap-4 border-b p-2 w-full"
                 >
-                    <div class="flex flex-col w-full">
+                    <div class="flex gap-2 items-center w-full">
                         <h3 class="font-medium break-all">
                             {{ participant.participant.name }}
                         </h3>
+
+                        <span
+                            v-if="participant.paid_amount > 0"
+                            class="text-xs font-normal text-white bg-emerald-600 rounded px-1"
+                        >
+                            Payer
+                        </span>
                     </div>
 
                     <span
                         v-if="participant.paid_amount > 0"
                         class="text-sm text-nowrap text-emerald-600"
                     >
-                        <span>Has paid</span>
                         {{ group.currency.symbol
                         }}{{
                             formatThousands(
-                                participant.paid_amount_in_base_currency
+                                participant.paid_amount_in_base_currency,
+                                group.currency.decimal_digits
                             )
                         }}
-                        <span class="text-xs font-normal">
+                        <span
+                            class="text-xs font-normal"
+                            v-if="group.currency_id !== bill.currency_id"
+                        >
                             ({{ bill.currency.symbol
-                            }}{{ formatThousands(participant.paid_amount) }})
+                            }}{{
+                                formatThousands(
+                                    participant.paid_amount,
+                                    bill.currency.decimal_digits
+                                )
+                            }})
                         </span>
                     </span>
                 </li>

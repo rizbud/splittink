@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Currency;
 use App\Models\Group;
 use App\Models\Participant;
+use App\Services\SettlementService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
@@ -31,7 +32,11 @@ class GroupController extends Controller
                         ]);
                 }
             ])
+            ->selectRaw('(SELECT sum(amount_in_base_currency) FROM bills WHERE group_id = groups.id) as total_amount_in_base_currency')
             ->firstOrFail();
+
+        $settlements = SettlementService::getSettlements($group->id);
+        $group->total_amount_in_base_currency = round($group->total_amount_in_base_currency ?? 0, $group->currency->decimal_digits);
 
         // If the request url is edit, return the edit view
         if ($request->is('groups/' . $slug . '/edit')) {
@@ -44,7 +49,8 @@ class GroupController extends Controller
         }
 
         return Inertia::render('Group/Show', [
-            'group' => $group
+            'group' => $group,
+            'settlements' => $settlements
         ]);
     }
 

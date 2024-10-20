@@ -20,7 +20,14 @@ onMounted(() => {
 
 <template>
     <div>
-        <h2 class="text-lg font-semibold mb-3">Recent Groups</h2>
+        <div class="flex justify-between items-center mb-2">
+            <h2 class="text-xl font-semibold w-full">Recent Groups</h2>
+
+            <Link href="/new" class="text-emerald-600 font-medium text-nowrap">
+                <i class="fas fa-plus-circle"></i>
+                Create Group
+            </Link>
+        </div>
         <ul class="space-y-3" v-if="recentGroups.length">
             <li v-for="group in recentGroups" :key="group.slug">
                 <Link

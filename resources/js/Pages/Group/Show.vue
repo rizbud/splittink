@@ -5,9 +5,10 @@ import { formatDate, formatThousands } from "../../utils";
 
 const appName = import.meta.env.VITE_APP_NAME;
 
-const { group } = usePage().props;
+const { group, settlements } = usePage().props;
 const participants = group.participants.map((participant) => participant.name);
 const bills = group.bills;
+const totalAmount = group.total_amount_in_base_currency;
 
 const saveGroupToLocalStorage = () => {
     const recentGroupsKey = "recentGroups";
@@ -41,17 +42,17 @@ onMounted(() => {
         <div
             class="flex justify-between items-start gap-4 w-full border-b pb-4"
         >
-            <div class="flex flex-col break-all">
-                <h1 class="text-2xl font-semibold">
+            <div class="flex flex-col">
+                <h1 class="text-2xl font-semibold break-all">
                     {{ group.name }}
                 </h1>
-                <p class="text-sm text-slate-600">
+                <p class="text-sm text-slate-600 break-words">
                     {{ group.description }}
                 </p>
-                <p class="text-sm text-slate-600">
+                <p class="text-sm text-slate-600 break-words">
                     {{ participants.join(", ") }}
                 </p>
-                <span class="text-xs text-slate-600">
+                <span class="text-xs text-slate-600 break-words">
                     Created at {{ formatDate(group.created_at) }}
                 </span>
             </div>
@@ -62,6 +63,46 @@ onMounted(() => {
             >
                 <i class="fas fa-pencil w-10"></i>
             </button>
+        </div>
+
+        <div class="flex flex-col">
+            <h2 class="text-lg font-semibold">Total Bill Amount</h2>
+            <span class="text-2xl font-semibold">
+                {{ group.currency.symbol
+                }}{{
+                    formatThousands(totalAmount, group.currency.decimal_digits)
+                }}
+            </span>
+        </div>
+
+        <div class="flex flex-col" v-if="settlements.length">
+            <h2 class="text-lg font-semibold">Settlements</h2>
+
+            <ul class="flex flex-col" v-if="settlements.length">
+                <li
+                    v-for="(settlement, idx) in settlements"
+                    :key="idx"
+                    class="flex items-center justify-between gap-4 border-b rounded p-2 w-full"
+                >
+                    <h3 class="font-medium break-words">
+                        {{ settlement.from.name }}
+                        <i class="fas fa-arrow-right text-xs mx-1"></i>
+                        {{ settlement.to.name }}
+                    </h3>
+
+                    <div class="flex flex-col items-end">
+                        <span class="font-medium">
+                            {{ group.currency.symbol
+                            }}{{
+                                formatThousands(
+                                    settlement.amount,
+                                    group.currency.decimal_digits
+                                )
+                            }}
+                        </span>
+                    </div>
+                </li>
+            </ul>
         </div>
 
         <div class="flex flex-col gap-2">
@@ -93,7 +134,7 @@ onMounted(() => {
                     </div>
 
                     <div class="flex flex-col items-end">
-                        <span class="text-sm text-slate-900">
+                        <span class="text-sm font-medium">
                             {{ group.currency.symbol
                             }}{{
                                 formatThousands(
@@ -104,7 +145,7 @@ onMounted(() => {
                         </span>
                         <span
                             v-if="bill.currency_id !== group.currency_id"
-                            class="text-xs text-slate-600"
+                            class="text-xs"
                         >
                             {{ bill.currency.symbol
                             }}{{
