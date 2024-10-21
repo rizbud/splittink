@@ -75,7 +75,7 @@ defineOptions({
         </ul>
     </div>
 
-    <div class="flex flex-col gap-2 p-6">
+    <div class="flex flex-col gap-2 p-6 bg-slate-100">
         <div class="text-center mb-2">
             <h2 class="text-2xl font-semibold">How It Works?</h2>
             <p class="text-sm">
@@ -129,9 +129,24 @@ defineOptions({
                 </p>
             </div>
         </div>
+
+        <div class="flex gap-4">
+            <div
+                class="bg-emerald-600 text-white aspect-square w-10 h-10 rounded-lg self-start flex justify-center items-center mt-1"
+            >
+                <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold">Settle Your Debts</h3>
+                <p class="text-sm text-slate-600">
+                    Once you know who owes whom and how much, you can settle
+                    your debts with each other.
+                </p>
+            </div>
+        </div>
     </div>
 
-    <div class="flex flex-col gap-2 p-6 bg-slate-100">
+    <div class="flex flex-col gap-2 p-6">
         <div class="text-center mb-2">
             <h2 class="text-2xl font-semibold">Key Features</h2>
             <p class="text-sm">
@@ -185,9 +200,24 @@ defineOptions({
                 </p>
             </div>
         </div>
+
+        <div class="flex gap-4">
+            <div
+                class="bg-emerald-600 text-white aspect-square w-10 h-10 rounded-lg self-start flex justify-center items-center mt-1"
+            >
+                <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold">Debt Settlement</h3>
+                <p class="text-sm text-slate-600">
+                    Once you know who owes whom and how much, you can settle
+                    your debts with each other.
+                </p>
+            </div>
+        </div>
     </div>
 
-    <div class="flex flex-col gap-2 p-6 pb-10">
+    <div class="flex flex-col gap-2 p-6 pb-10 bg-slate-100">
         <div class="text-center mb-2">
             <h2 class="text-2xl font-semibold">How The Calculation Works?</h2>
             <p class="text-sm">
