@@ -6,7 +6,6 @@ use App\Models\Bill;
 use App\Models\BillParticipant;
 use App\Models\Currency;
 use App\Models\Group;
-use App\Models\Participant;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -173,7 +172,6 @@ class BillController extends Controller
             'amount_in_base_currency' => $amountInBaseCurrency,
         ]);
 
-
         $amountPerParticipant = round($amount / count($request->participants), $selectedCurrency->decimal_digits);
 
         $participants = [];
@@ -197,9 +195,12 @@ class BillController extends Controller
         return $bill;
     }
 
-    public function delete($id, $billId)
+    public function delete($slug, $billId)
     {
-        $bill = Bill::findOrFail($billId);
+        $bill = Group::where('slug', $slug)
+            ->firstOrFail()
+            ->bills()
+            ->findOrFail($billId);
         $bill->participants()->detach();
         $bill->delete();
 

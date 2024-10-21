@@ -9,7 +9,7 @@ class Participant extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'group_id'];
+    protected $fillable = ['name', 'group_id', 'settled_amount'];
 
     public function group()
     {

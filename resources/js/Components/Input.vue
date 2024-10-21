@@ -25,7 +25,11 @@ const updateValue = (event) => {
 
 <template>
     <div class="flex flex-col gap-1">
-        <label :for="$attrs.id" class="inline-block text-sm text-slate-600">
+        <label
+            :for="$attrs.id"
+            class="inline-block text-sm text-slate-600"
+            v-if="props.label"
+        >
             {{ props.label
             }}<span v-if="props.required" class="text-red-500">*</span>
         </label>

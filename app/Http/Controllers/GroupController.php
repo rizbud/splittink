@@ -106,7 +106,16 @@ class GroupController extends Controller
             'participants.*.name' => 'required|string|max:100',
         ]);
 
-        $group = Group::findOrFail($id);
+        $group = Group::findOrFail($id)->with(['bills' => function ($query) {
+            $query->select('id', 'group_id');
+        }])->first();
+
+        // if there are bills, the group currency cannot be changed
+        if ($group->bills->count() > 0 && $group->currency_id != $request->input('currency_id')) {
+            return response()->json([
+                'message' => 'The currency cannot be changed because there are bills in the group.',
+            ], 422);
+        }
 
         $group->name = $request->input('name');
         $group->description = $request->input('description');
@@ -141,5 +150,61 @@ class GroupController extends Controller
         }
 
         return $group;
+    }
+
+    public function settle(Request $request, $id)
+    {
+        $request->validate([
+            'settlements' => 'required|array|min:1',
+            'settlements.*.from' => 'required|numeric|exists:participants,id',
+            'settlements.*.to' => 'required|numeric|exists:participants,id',
+            'settlements.*.amount' => 'required|numeric|min:0.01|max:2147483647',
+        ]);
+
+        $group = Group::findOrFail($id)->with('currency')->first();
+        $settlements = SettlementService::getSettlements($id);
+        if (empty($settlements)) {
+            return response()->json([
+                'message' => 'There are no settlements to apply or the group does not exist.',
+            ], 422);
+        }
+
+        foreach ($request->input('settlements') as $settlement) {
+            $amount = $settlement['amount'];
+            $fromParticipant = Participant::findOrFail($settlement['from']);
+            $toParticipant = Participant::findOrFail($settlement['to']);
+
+            // find $fromParticipant and $toParticipant in $settlements
+            $selectedSettlement = array_filter($settlements, function ($participant) use ($fromParticipant, $toParticipant) {
+                return $participant['from']['id'] == $fromParticipant->id && $participant['to']['id'] == $toParticipant->id;
+            })[0] ?? null;
+            if (!$selectedSettlement) {
+                return response()->json([
+                    'message' => 'The settlement is not valid.',
+                ], 422);
+            }
+
+            $remainingAmount = round($selectedSettlement['amount'], $group->currency->decimal_digits);
+
+            if ($remainingAmount <= 0) {
+                return response()->json([
+                    'message' => 'There is no debt between these participants or the debt is already settled.',
+                    'data' => $selectedSettlement,
+                ], 422);
+            }
+            if ($amount > $remainingAmount) {
+                return response()->json([
+                    'message' => 'The amount is greater than the debt.',
+                    'data' => $selectedSettlement,
+                ], 422);
+            }
+
+            $fromParticipant->increment('settled_amount', $amount);
+            $toParticipant->decrement('settled_amount', $amount);
+        }
+
+        return response()->json([
+            'message' => 'The settlements have been successfully applied.',
+        ]);
     }
 }

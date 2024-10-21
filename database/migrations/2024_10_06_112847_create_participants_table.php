@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->foreignId('group_id')->constrained()->onDelete('cascade');
+            $table->float('settled_amount')->default(0); // Total amount settled by the participant through paying or receiving money from other participants (a negative amount indicates the participant received money)
             $table->timestamps();
         });
     }

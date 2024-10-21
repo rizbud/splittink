@@ -166,7 +166,7 @@ const handleDelete = async () => {
     try {
         isDeleting.value = true;
         const response = await axios.delete(
-            `/groups/${group.id}/bills/${bill.id}`
+            `/groups/${group.slug}/bills/${bill.id}`
         );
 
         if (response.status === 204) {

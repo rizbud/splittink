@@ -3,15 +3,18 @@
 namespace App\Services;
 
 use App\Models\Group;
+use DebugBar\DebugBar;
 
 class SettlementService
 {
     public static function getTotalUnpaidAmount($groupId)
     {
         // SELECT
-        //     p.id, p.name, g.id group_id, sum(bp.unpaid_amount_in_base_currency) total_unpaid
+        //     p.id, p.name, p.settled_amount, g.id group_id, ROUND(sum(bp.unpaid_amount_in_base_currency) - p.settled_amount, c.decimal_digits) total_unpaid
         // FROM
         //     groups g
+        // JOIN
+        //    currencies c ON c.id = g.currency_id
         // JOIN
         //     participants p ON p.group_id = g.id
         // JOIN
@@ -21,19 +24,28 @@ class SettlementService
         // GROUP
         //     BY p.id
         $totalUnpaidAmount = Group::where('group_id', $groupId)
+            ->join('currencies', 'currencies.id', '=', 'groups.currency_id')
             ->join('participants', 'participants.group_id', '=', 'groups.id')
             ->join('bill_participants', 'bill_participants.participant_id', '=', 'participants.id')
-            ->select('participants.id', 'participants.name', 'groups.id as group_id')
-            ->selectRaw('SUM(unpaid_amount_in_base_currency) as total_unpaid')
+            ->select('participants.id', 'participants.name', 'participants.settled_amount', 'groups.id as group_id', 'currencies.decimal_digits')
+            ->selectRaw('ROUND(SUM(unpaid_amount_in_base_currency) - settled_amount, decimal_digits) as total_unpaid')
             ->groupBy('participants.id')
             ->get();
 
-        return $totalUnpaidAmount;
+        return $totalUnpaidAmount->map(function ($participant) {
+            $participant->total_unpaid = round($participant->total_unpaid - $participant->total_paid, 2);
+            return $participant;
+        });
     }
 
     public static function getSettlements($groupId)
     {
         $totalUnpaidAmount = self::getTotalUnpaidAmount($groupId);
+        if ($totalUnpaidAmount->count() == 0) {
+            return [];
+        }
+
+        $decimalDigits = $totalUnpaidAmount->first()->decimal_digits;
         $totalUnpaid = $totalUnpaidAmount->sum('total_unpaid');
         $participantCount = $totalUnpaidAmount->count();
         // check if there are no participants
@@ -46,7 +58,7 @@ class SettlementService
         $toReceive = [];
 
         foreach ($totalUnpaidAmount as $participant) {
-            $balance = $participant->total_unpaid - $averageUnpaid;
+            $balance = round($participant->total_unpaid - $averageUnpaid, $decimalDigits);
 
             if ($balance > 0) {
                 // Participant owes money (needs to pay)
@@ -65,7 +77,6 @@ class SettlementService
         }
 
         $settlements = [];
-
         foreach ($toPay as &$payer) {
             foreach ($toReceive as &$receiver) {
                 if ($payer['amount'] == 0 || $receiver['amount'] == 0) {

@@ -17,6 +17,7 @@ Route::post('groups', [GroupController::class, 'create'])->name('groups.create')
 Route::get('groups/{slug}', [GroupController::class, 'show'])->name('groups.show');
 Route::put('groups/{id}', [GroupController::class, 'update'])->name('groups.update');
 Route::get('groups/{slug}/edit', [GroupController::class, 'show'])->name('groups.edit');
+Route::post('groups/{id}/settle', [GroupController::class, 'settle'])->name('groups.settle');
 Route::get('groups/{slug}/add-bill', [BillController::class, 'new'])->name('bills.new');
 Route::post('groups/{id}/add-bill', [BillController::class, 'create'])->name('bills.create');
 Route::get('groups/{slug}/bills', function () {
@@ -24,5 +25,5 @@ Route::get('groups/{slug}/bills', function () {
 });
 Route::get('groups/{slug}/bills/{billId}', [BillController::class, 'show'])->name('bills.show');
 Route::put('groups/{id}/bills/{billId}', [BillController::class, 'update'])->name('bills.update');
-Route::delete('groups/{id}/bills/{billId}', [BillController::class, 'delete'])->name('bills.delete');
+Route::delete('groups/{slug}/bills/{billId}', [BillController::class, 'delete'])->name('bills.delete');
 Route::get('groups/{slug}/bills/{billId}/edit', [BillController::class, 'show'])->name('bills.edit');

@@ -1,7 +1,8 @@
 <script setup>
 import { usePage, Head, router, Link } from "@inertiajs/vue3";
-import { onMounted } from "vue";
-import { formatDate, formatThousands } from "../../utils";
+import { onMounted, ref } from "vue";
+import { formatDate, formatThousands, toast } from "../../utils";
+import { Input, PrimaryButton } from "../../Components";
 
 const appName = import.meta.env.VITE_APP_NAME;
 
@@ -9,6 +10,9 @@ const { group, settlements } = usePage().props;
 const participants = group.participants.map((participant) => participant.name);
 const bills = group.bills;
 const totalAmount = group.total_amount_in_base_currency;
+
+const selectedSettlement = ref(null);
+const isSettling = ref(false);
 
 const saveGroupToLocalStorage = () => {
     const recentGroupsKey = "recentGroups";
@@ -31,6 +35,34 @@ const saveGroupToLocalStorage = () => {
 onMounted(() => {
     saveGroupToLocalStorage();
 });
+
+const handleSettle = async () => {
+    if (!selectedSettlement.value) return;
+
+    const { from, to, amount } = selectedSettlement.value;
+    try {
+        isSettling.value = true;
+        const response = await axios.post(`/groups/${group.id}/settle`, {
+            settlements: [{ from: from.id, to: to.id, amount }],
+        });
+
+        if (response.status === 200) {
+            toast.success("Settlement successful");
+            window.location.reload();
+        } else {
+            throw new Error();
+        }
+    } catch (error) {
+        const errorMessage =
+            error.response?.data?.message ||
+            error.message ||
+            "Failed to settle";
+        toast.error(errorMessage);
+    } finally {
+        isSettling.value = false;
+        selectedSettlement.value = null;
+    }
+};
 </script>
 
 <template>
@@ -90,7 +122,7 @@ onMounted(() => {
                         {{ settlement.to.name }}
                     </h3>
 
-                    <div class="flex flex-col items-end">
+                    <div class="flex items-center gap-2">
                         <span class="font-medium">
                             {{ group.currency.symbol
                             }}{{
@@ -100,6 +132,18 @@ onMounted(() => {
                                 )
                             }}
                         </span>
+
+                        <button
+                            @click="
+                                selectedSettlement = {
+                                    from: settlement.from,
+                                    to: settlement.to,
+                                }
+                            "
+                            class="rounded bg-emerald-600 text-white px-2 py-0.5 hover:bg-emerald-700 focus:outline-none focus:ring-0"
+                        >
+                            Settle
+                        </button>
                     </div>
                 </li>
             </ul>
@@ -195,5 +239,50 @@ onMounted(() => {
                 </Link>
             </div>
         </div>
+    </div>
+
+    <div
+        v-if="!!selectedSettlement"
+        class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+    >
+        <form
+            class="bg-white p-4 rounded shadow-lg w-96 flex flex-col relative"
+            @submit.prevent="handleSettle"
+        >
+            <div class="flex items-start justify-between">
+                <p class="text-sm mb-2">
+                    Settle the amount between
+                    {{ selectedSettlement.from.name }} and
+                    {{ selectedSettlement.to.name }}.
+                </p>
+
+                <button
+                    type="button"
+                    @click="selectedSettlement = null"
+                    class="text-slate-900"
+                >
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <Input
+                type="number"
+                v-model="selectedSettlement.amount"
+                :placeholder="`10.00 (in ${group.currency.code})`"
+                @input="
+                    (event) =>
+                        (selectedSettlement.amount = parseFloat(
+                            event.target.value || 0
+                        ))
+                "
+                required
+            />
+            <PrimaryButton
+                text="Settle"
+                type="submit"
+                class="mt-4"
+                :isLoading="isSettling"
+            />
+        </form>
     </div>
 </template>
