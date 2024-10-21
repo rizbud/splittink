@@ -4,7 +4,7 @@ import { GroupForm } from "../../Components";
 
 const appName = import.meta.env.VITE_APP_NAME;
 
-const { group, currencies } = usePage().props;
+const { group, currencies, settlements } = usePage().props;
 </script>
 
 <template>
@@ -17,6 +17,10 @@ const { group, currencies } = usePage().props;
             Edit {{ group.name }}
         </h1>
 
-        <GroupForm :group="group" :currencies="currencies" />
+        <GroupForm
+            :group="group"
+            :currencies="currencies"
+            :settlements="settlements"
+        />
     </div>
 </template>

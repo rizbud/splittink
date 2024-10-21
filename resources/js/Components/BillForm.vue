@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, defineProps, watch, computed } from "vue";
+import { ref, reactive, defineProps, computed } from "vue";
 import { router } from "@inertiajs/vue3";
 import axios from "axios";
 import { Input, NegativeButton, PrimaryButton } from ".";
@@ -40,6 +40,8 @@ const form = reactive({
     participants: billParticipants || participants || [],
     // splitting_method: bill?.splitting_method || "equally",
 });
+
+const showDeleteModal = ref(false);
 
 const baseCurrency = currencies.find(
     (currency) => currency.id === group.currency_id
@@ -159,10 +161,6 @@ const handleSubmitForm = async () => {
 };
 
 const handleDelete = async () => {
-    const confirm = window.confirm(
-        "Are you sure you want to delete this bill?"
-    );
-    if (!confirm) return;
     try {
         isDeleting.value = true;
         const response = await axios.delete(
@@ -183,180 +181,221 @@ const handleDelete = async () => {
         toast.error(errorMessage);
     } finally {
         isDeleting.value = false;
+        showDeleteModal.value = false;
     }
 };
 </script>
 
 <template>
-    <form
-        @submit.prevent="handleSubmitForm"
-        class="flex flex-col gap-4 text-slate-600"
-    >
-        <Input
-            id="bill-name"
-            v-model="form.name"
-            label="Bill or Payment Name"
-            placeholder="Taxi fare from airport to hotel"
-            required
-            maxlength="100"
-        />
+    <div>
+        <form
+            @submit.prevent="handleSubmitForm"
+            class="flex flex-col gap-4 text-slate-600"
+        >
+            <Input
+                id="bill-name"
+                v-model="form.name"
+                label="Bill or Payment Name"
+                placeholder="Taxi fare from airport to hotel"
+                required
+                maxlength="100"
+            />
 
-        <div class="space-y-1">
-            <label for="amount" class="inline-block text-sm">
-                Total Amount<span class="text-red-500">*</span>
-            </label>
-            <div
-                class="flex items-center border border-gray-300 rounded overflow-hidden"
-            >
-                <select
-                    id="currency_id"
-                    name="currency_id"
-                    v-model="form.currency_id"
-                    class="p-2 focus:outline-none focus:ring-0 border-r w-fit"
+            <div class="space-y-1">
+                <label for="amount" class="inline-block text-sm">
+                    Total Amount<span class="text-red-500">*</span>
+                </label>
+                <div
+                    class="flex items-center border border-gray-300 rounded overflow-hidden"
                 >
-                    <option
-                        v-for="currency in currencies"
-                        :key="currency.id"
-                        :value="currency.id"
-                        :selected="currency.id === form.currency_id"
+                    <select
+                        id="currency_id"
+                        name="currency_id"
+                        v-model="form.currency_id"
+                        class="p-2 focus:outline-none focus:ring-0 border-r w-fit"
                     >
-                        {{ currency.code }} ({{ currency.symbol }})
-                    </option>
-                </select>
-
-                <input
-                    id="amount"
-                    type="number"
-                    name="amount"
-                    v-model="form.amount"
-                    class="w-full p-2 focus:outline-none focus:ring-0"
-                    placeholder="10.00"
-                    max="2147483647"
-                    required
-                />
-            </div>
-            <span class="text-sm" v-if="form.amount">
-                Amount in {{ baseCurrency.code }}:
-                <span class="text-base">
-                    {{ amountInBaseCurrency }}
-                </span>
-            </span>
-        </div>
-
-        <div class="flex flex-col gap-1">
-            <label class="text-sm">Who is participating?</label>
-            <ul class="max-h-80 overflow-y-auto space-y-3 border rounded p-2">
-                <li
-                    v-for="participant in participants"
-                    :key="participant.participantId"
-                    class="flex flex-col px-2 border rounded"
-                >
-                    <div class="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            :id="`participant-${participant.participantId}`"
-                            :value="participant.id"
-                            :checked="
-                                findParticipant(participant.participantId)
-                            "
-                            @change="
-                                () =>
-                                    handleChangeParticipants(
-                                        participant.participantId
-                                    )
-                            "
-                            class="focus:ring-0"
-                        />
-                        <label
-                            :for="`participant-${participant.participantId}`"
-                            class="py-2 w-full"
+                        <option
+                            v-for="currency in currencies"
+                            :key="currency.id"
+                            :value="currency.id"
+                            :selected="currency.id === form.currency_id"
                         >
-                            {{ participant.name }}
-                        </label>
+                            {{ currency.code }} ({{ currency.symbol }})
+                        </option>
+                    </select>
 
+                    <input
+                        id="amount"
+                        type="number"
+                        name="amount"
+                        v-model="form.amount"
+                        class="w-full p-2 focus:outline-none focus:ring-0"
+                        placeholder="10.00"
+                        max="2147483647"
+                        required
+                    />
+                </div>
+                <span class="text-sm" v-if="form.amount">
+                    Amount in {{ baseCurrency.code }}:
+                    <span class="text-base">
+                        {{ amountInBaseCurrency }}
+                    </span>
+                </span>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <label class="text-sm">Who is participating?</label>
+                <ul
+                    class="max-h-80 overflow-y-auto space-y-3 border rounded p-2"
+                >
+                    <li
+                        v-for="participant in participants"
+                        :key="participant.participantId"
+                        class="flex flex-col px-2 border rounded"
+                    >
                         <div class="flex items-center gap-2">
-                            <label
-                                :for="`participant-${participant.participantId}-has-paid`"
-                                class="py-2 text-nowrap"
-                                :class="{
-                                    'text-slate-400': !findParticipant(
-                                        participant.participantId
-                                    ),
-                                }"
-                            >
-                                Has Paid?
-                            </label>
                             <input
                                 type="checkbox"
-                                :id="`participant-${participant.participantId}-has-paid`"
-                                :value="true"
-                                :checked="hasPaid(participant.participantId)"
+                                :id="`participant-${participant.participantId}`"
+                                :value="participant.id"
+                                :checked="
+                                    findParticipant(participant.participantId)
+                                "
                                 @change="
                                     () =>
-                                        handleHasPaid(participant.participantId)
-                                "
-                                :disabled="
-                                    !findParticipant(participant.participantId)
+                                        handleChangeParticipants(
+                                            participant.participantId
+                                        )
                                 "
                                 class="focus:ring-0"
                             />
+                            <label
+                                :for="`participant-${participant.participantId}`"
+                                class="py-2 w-full"
+                            >
+                                {{ participant.name }}
+                            </label>
+
+                            <div class="flex items-center gap-2">
+                                <label
+                                    :for="`participant-${participant.participantId}-has-paid`"
+                                    class="py-2 text-nowrap"
+                                    :class="{
+                                        'text-slate-400': !findParticipant(
+                                            participant.participantId
+                                        ),
+                                    }"
+                                >
+                                    Has Paid?
+                                </label>
+                                <input
+                                    type="checkbox"
+                                    :id="`participant-${participant.participantId}-has-paid`"
+                                    :value="true"
+                                    :checked="
+                                        hasPaid(participant.participantId)
+                                    "
+                                    @change="
+                                        () =>
+                                            handleHasPaid(
+                                                participant.participantId
+                                            )
+                                    "
+                                    :disabled="
+                                        !findParticipant(
+                                            participant.participantId
+                                        )
+                                    "
+                                    class="focus:ring-0"
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <Input
-                        :id="`participant-${participant.participantId}-paid-amount`"
-                        :label="`Amount Paid by ${participant.name} (in ${selectedCurrency.code})`"
-                        type="number"
-                        placeholder="10.00"
-                        :value="
-                            findParticipant(participant.participantId)
-                                .paidAmount
-                        "
-                        @input="
-                            findParticipant(
-                                participant.participantId
-                            ).paidAmount = parseFloat($event.target.value || 0)
-                        "
-                        required
-                        v-if="hasPaid(participant.participantId)"
-                        class="pb-2"
-                    />
-                </li>
-            </ul>
+                        <Input
+                            :id="`participant-${participant.participantId}-paid-amount`"
+                            :label="`Amount Paid by ${participant.name} (in ${selectedCurrency.code})`"
+                            type="number"
+                            placeholder="10.00"
+                            :value="
+                                findParticipant(participant.participantId)
+                                    .paidAmount
+                            "
+                            @input="
+                                findParticipant(
+                                    participant.participantId
+                                ).paidAmount = parseFloat(
+                                    $event.target.value || 0
+                                )
+                            "
+                            required
+                            v-if="hasPaid(participant.participantId)"
+                            class="pb-2"
+                        />
+                    </li>
+                </ul>
 
-            <span class="text-sm self-end">
-                Total Paid Amount in {{ selectedCurrency.code }}:
-                <span
-                    class="text-base"
-                    :class="{
-                        'text-emerald-500': totalPaidAmount.isMatched,
-                        'text-red-500': !totalPaidAmount.isMatched,
-                    }"
-                >
-                    {{ totalPaidAmount.amount }}
+                <span class="text-sm self-end">
+                    Total Paid Amount in {{ selectedCurrency.code }}:
+                    <span
+                        class="text-base"
+                        :class="{
+                            'text-emerald-500': totalPaidAmount.isMatched,
+                            'text-red-500': !totalPaidAmount.isMatched,
+                        }"
+                    >
+                        {{ totalPaidAmount.amount }}
 
-                    <span v-if="!totalPaidAmount.isMatched">
-                        ({{ totalPaidAmount.isOverpaid ? "+" : "-"
-                        }}{{ totalPaidAmount.remainingAmount }})
+                        <span v-if="!totalPaidAmount.isMatched">
+                            ({{ totalPaidAmount.isOverpaid ? "+" : "-"
+                            }}{{ totalPaidAmount.remainingAmount }})
+                        </span>
                     </span>
                 </span>
-            </span>
+            </div>
+
+            <PrimaryButton
+                type="submit"
+                :text="isEditing ? 'Save Changes' : 'Add Bill'"
+                :disabled="isDisabled || isDeleting"
+                :is-loading="isLoading"
+            />
+
+            <NegativeButton
+                v-if="isEditing"
+                type="button"
+                text="Delete"
+                :disabled="isDeleting || isLoading"
+                :is-loading="isDeleting"
+                @click="showDeleteModal = true"
+            />
+        </form>
+
+        <div
+            v-if="showDeleteModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+        >
+            <div class="bg-white p-4 rounded shadow-lg">
+                <h3 class="font-medium mb-4">
+                    Are you sure you want to delete this bill?
+                </h3>
+
+                <div class="flex justify-between gap-4">
+                    <button
+                        type="button"
+                        class="w-full text-slate-600 px-4 py-2 focus:outline-none focus:ring-0 hover:underline"
+                        @click="showDeleteModal = false"
+                    >
+                        Cancel
+                    </button>
+                    <NegativeButton
+                        type="button"
+                        text="Delete"
+                        class="w-full hover:opacity-80"
+                        @click="handleDelete"
+                        :is-loading="isDeleting"
+                    />
+                </div>
+            </div>
         </div>
-
-        <PrimaryButton
-            type="submit"
-            :text="isEditing ? 'Save Changes' : 'Add Bill'"
-            :disabled="isDisabled || isDeleting"
-            :is-loading="isLoading"
-        />
-
-        <NegativeButton
-            v-if="isEditing"
-            type="button"
-            text="Delete"
-            :disabled="isDeleting || isLoading"
-            :is-loading="isDeleting"
-            @click="handleDelete"
-        />
-    </form>
+    </div>
 </template>

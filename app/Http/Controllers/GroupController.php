@@ -44,7 +44,8 @@ class GroupController extends Controller
 
             return Inertia::render('Group/Edit', [
                 'group' => $group,
-                'currencies' => $currencies
+                'currencies' => $currencies,
+                'settlements' => $settlements
             ]);
         }
 
@@ -110,12 +111,23 @@ class GroupController extends Controller
             $query->select('id', 'group_id');
         }])->first();
 
-        // if there are bills, the group currency cannot be changed
-        if ($group->bills->count() > 0 && $group->currency_id != $request->input('currency_id')) {
-            return response()->json([
-                'message' => 'The currency cannot be changed because there are bills in the group.',
-            ], 422);
-        }
+        $settlements = SettlementService::getSettlements($id);
+
+        // if there are bills or settlements, the group currency cannot be changed
+        // $groupCurrencyId = $group->currency_id;
+        // $currencyId = $request->input('currency_id');
+        // $hasSettlements = !empty($settlements);
+
+        // if ($hasSettlements && $groupCurrencyId != $currencyId) {
+        //     return response()->json([
+        //         'message' => 'The currency cannot be changed because there are settlements in the group.',
+        //     ], 422);
+        // }
+        // if ($group->bills->count() > 0 && $groupCurrencyId != $currencyId) {
+        //     return response()->json([
+        //         'message' => 'The currency cannot be changed because there are bills in the group.',
+        //     ], 422);
+        // }
 
         $group->name = $request->input('name');
         $group->description = $request->input('description');

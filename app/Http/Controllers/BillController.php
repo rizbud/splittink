@@ -32,7 +32,7 @@ class BillController extends Controller
             ->get();
 
         if ($request->is('groups/' . $slug . '/bills/' . $billId . '/edit')) {
-            $currencies = Currency::all('id', 'name', 'code', 'symbol', 'exchange_rate');
+            $currencies = Currency::all();
             return Inertia::render('Bill/Edit', [
                 'bill' => $bill,
                 'bill_participants' => $bill_participants,
@@ -164,6 +164,13 @@ class BillController extends Controller
         $amountInBaseCurrency = round($amount * $rate, $baseCurrency->decimal_digits);
 
         $bill = Bill::findOrFail($billId);
+
+        // show error if currency is changed
+        // if ($bill->currency_id != $request->currency_id) {
+        //     return response()->json([
+        //         'message' => 'Currency cannot be changed.',
+        //     ], 422);
+        // }
 
         $bill->update([
             'name' => $request->name,

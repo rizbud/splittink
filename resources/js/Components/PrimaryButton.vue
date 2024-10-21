@@ -11,7 +11,7 @@ const props = defineProps({
 <template>
     <button
         v-bind="$attrs"
-        class="bg-emerald-500 text-white rounded px-4 py-3 focus:outline-none focus:ring-0 flex items-center justify-center"
+        class="bg-emerald-500 text-white rounded px-4 py-2 focus:outline-none focus:ring-0 flex items-center justify-center"
         :class="
             props.disabled || props.isLoading
                 ? 'bg-gray-300 text-slate-600 cursor-default'
