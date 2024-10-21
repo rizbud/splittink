@@ -161,7 +161,7 @@ class GroupController extends Controller
             'settlements.*.amount' => 'required|numeric|min:0.01|max:2147483647',
         ]);
 
-        $group = Group::findOrFail($id)->with('currency')->first();
+        $group = Group::with('currency')->findOrFail($id);
         $settlements = SettlementService::getSettlements($id);
         if (empty($settlements)) {
             return response()->json([
@@ -169,38 +169,53 @@ class GroupController extends Controller
             ], 422);
         }
 
+        $errors = [];
         foreach ($request->input('settlements') as $settlement) {
             $amount = $settlement['amount'];
             $fromParticipant = Participant::findOrFail($settlement['from']);
             $toParticipant = Participant::findOrFail($settlement['to']);
 
             // find $fromParticipant and $toParticipant in $settlements
-            $selectedSettlement = array_filter($settlements, function ($participant) use ($fromParticipant, $toParticipant) {
+            $selectedSettlement = current(array_filter($settlements, function ($participant) use ($fromParticipant, $toParticipant) {
                 return $participant['from']['id'] == $fromParticipant->id && $participant['to']['id'] == $toParticipant->id;
-            })[0] ?? null;
+            }));
             if (!$selectedSettlement) {
-                return response()->json([
+                $errors[] = [
                     'message' => 'The settlement is not valid.',
-                ], 422);
+                    'data' => [
+                        'from' => $fromParticipant->id,
+                        'to' => $toParticipant->id,
+                    ],
+                ];
+                continue;
             }
 
-            $remainingAmount = round($selectedSettlement['amount'], $group->currency->decimal_digits);
+            $remainingDebt = round($selectedSettlement['amount'], $group->currency->decimal_digits);
 
-            if ($remainingAmount <= 0) {
-                return response()->json([
-                    'message' => 'There is no debt between these participants or the debt is already settled.',
+            if ($remainingDebt <= 0) {
+                $errors[] = [
+                    'message' => 'The settlement has already been applied.',
                     'data' => $selectedSettlement,
-                ], 422);
+                ];
+                continue;
             }
-            if ($amount > $remainingAmount) {
-                return response()->json([
-                    'message' => 'The amount is greater than the debt.',
+            if ($amount > $remainingDebt) {
+                $errors[] = [
+                    'message' => 'The settlement amount is greater than the remaining debt.',
                     'data' => $selectedSettlement,
-                ], 422);
+                ];
+                continue;
             }
 
             $fromParticipant->increment('settled_amount', $amount);
             $toParticipant->decrement('settled_amount', $amount);
+        }
+
+        if (!empty($errors)) {
+            return response()->json([
+                'message' => 'Some settlements could not be applied. ' . current($errors)['message'],
+                'errors' => $errors,
+            ], 422);
         }
 
         return response()->json([

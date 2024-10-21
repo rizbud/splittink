@@ -38,6 +38,7 @@ const updateValue = (event) => {
             v-if="props.kind === 'textarea'"
             :value="props.value || props.modelValue"
             @input="updateValue"
+            :required="props.required"
             :class="inputClasses"
         />
         <input
@@ -45,6 +46,7 @@ const updateValue = (event) => {
             v-else
             :value="props.value || props.modelValue"
             @input="updateValue"
+            :required="props.required"
             :class="inputClasses"
         />
 
