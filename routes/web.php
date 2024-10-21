@@ -8,6 +8,22 @@ Route::get('/', function () {
     return inertia('Index');
 })->name('index');
 
+Route::get('/about-us', function () {
+    return inertia('About-Us');
+})->name('about-us');
+
+Route::get('/terms-of-service', function () {
+    return inertia('Terms-Of-Service');
+})->name('terms-of-service');
+
+Route::get('/privacy-policy', function () {
+    return inertia('Privacy-Policy');
+})->name('privacy-policy');
+
+Route::get('/contact-us', function () {
+    return inertia('Contact-Us');
+})->name('contact-us');
+
 
 Route::get('new', [GroupController::class, 'new'])->name('groups.new');
 Route::get('groups', function () {
