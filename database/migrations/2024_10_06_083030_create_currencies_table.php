@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('currencies', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('code');
+            $table->string('code')->unique();
             $table->string('symbol');
             $table->integer('decimal_digits');
             $table->float('exchange_rate')->default(0); // Exchange rate per USD

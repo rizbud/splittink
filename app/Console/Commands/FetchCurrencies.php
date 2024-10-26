@@ -36,10 +36,9 @@ class FetchCurrencies extends Command
 
             if ($response->successful()) {
                 $data = $response->json();
-                $payload = [];
 
                 foreach ($data as $code => $currency) {
-                    $payload[] = [
+                    $payload = [
                         'name' => $currency['name'],
                         'code' => $code,
                         'symbol' => $currency['symbol'],
@@ -47,9 +46,9 @@ class FetchCurrencies extends Command
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
-                }
 
-                Currency::insert($payload);
+                    Currency::upsert($payload, ['code']);
+                }
 
                 $this->info('Currencies fetched successfully.');
             } else {
