@@ -2,6 +2,7 @@ import "./bootstrap";
 import { createApp, h } from "vue";
 import { createInertiaApp } from "@inertiajs/vue3";
 
+import VueGtag from "vue-gtag";
 import Vue3Toastify from "vue3-toastify";
 
 import MainLayout from "./Layouts/MainLayout.vue";
@@ -16,6 +17,11 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
+            .use(VueGtag, {
+                config: {
+                    id: import.meta.env.VITE_GA_MEASUREMENT_ID,
+                },
+            })
             .use(Vue3Toastify, {
                 position: "top-right",
                 duration: 3000,
