@@ -10,4 +10,4 @@ services:
       - ./logs:/var/log
       - ./database/database.sqlite:/var/www/database/database.sqlite
       - ./storage/logs/laravel.log:/var/www/storage/logs/laravel.log
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/sites-available/default

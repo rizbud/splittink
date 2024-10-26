@@ -64,11 +64,8 @@ COPY --chown=www-data:www-data . /var/www
 RUN chown -R www-data:www-data /var/www && \
     chmod -R 755 /var/www
 
-RUN chown -R www-data:www-data /var/www/storage && \
-    chmod -R 755 /var/www/storage
-
-RUN chown -R www-data:www-data /var/www/bootstrap/cache && \
-    chmod -R 755 /var/www/bootstrap/cache
+RUN chown -R www-data:www-data ./storage ./bootstrap/cache ./database && \
+    chmod -R 755 ./storage ./bootstrap/cache ./database
 
 # Copy cron job file
 COPY cronfile /etc/cron.d/cronfile
