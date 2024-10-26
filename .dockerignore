@@ -1,0 +1,10 @@
+/node_modules
+/public/build
+/storage/debugbar
+/storage/logs
+/database/*.sqlite
+/vendor
+/logs
+.env
+.editorconfig
+.git
