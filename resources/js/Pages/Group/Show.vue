@@ -24,12 +24,12 @@ const saveGroupToLocalStorage = () => {
     let recentGroups = JSON.parse(localStorage.getItem(recentGroupsKey)) || [];
 
     // Remove the group if it already exists
-    recentGroups = recentGroups.filter((g) => g.slug !== group.slug);
+    recentGroups = recentGroups.filter((g) => g.slug !== group.value.slug);
 
     // Add the group to the end of the list
     recentGroups.push({
-        name: group.name,
-        slug: group.slug,
+        name: group.value.name,
+        slug: group.value.slug,
         last_visited: new Date().toISOString(),
     });
 
