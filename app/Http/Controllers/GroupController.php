@@ -107,32 +107,13 @@ class GroupController extends Controller
             'participants.*.name' => 'required|string|max:100',
         ]);
 
-        $group = Group::findOrFail($id)->with(['bills' => function ($query) {
-            $query->select('id', 'group_id');
-        }])->first();
+        $group = Group::findOrFail($id);
 
-        $settlements = SettlementService::getSettlements($id);
-
-        // if there are bills or settlements, the group currency cannot be changed
-        // $groupCurrencyId = $group->currency_id;
-        // $currencyId = $request->input('currency_id');
-        // $hasSettlements = !empty($settlements);
-
-        // if ($hasSettlements && $groupCurrencyId != $currencyId) {
-        //     return response()->json([
-        //         'message' => 'The currency cannot be changed because there are settlements in the group.',
-        //     ], 422);
-        // }
-        // if ($group->bills->count() > 0 && $groupCurrencyId != $currencyId) {
-        //     return response()->json([
-        //         'message' => 'The currency cannot be changed because there are bills in the group.',
-        //     ], 422);
-        // }
-
-        $group->name = $request->input('name');
-        $group->description = $request->input('description');
-        $group->currency_id = $request->input('currency_id');
-        $group->save();
+        $group->update([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'currency_id' => $request->input('currency_id'),
+        ]);
 
         $participantIds = [];
         $participantsToCreate = [];
