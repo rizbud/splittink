@@ -3,13 +3,14 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="google-adsense-account" content="{{ env('GOOGLE_ADSENSE_ACCOUNT') }}" />
 
         @vite(['resources/js/app.js', 'resources/css/app.css'])
         @inertiaHead
     </head>
     <body class="max-w-screen-md mx-auto min-h-screen bg-white">
         @inertia
-        
+
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

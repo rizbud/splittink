@@ -9,7 +9,15 @@ const { group, currencies, settlements } = usePage().props;
 
 <template>
     <Head>
-        <title>Edit {{ group.name }} | {{ appName }}</title>
+        <title>Edit Group {{ group.name }} | {{ appName }}</title>
+        <meta
+            property="og:title"
+            :content="`Edit Group ${group.name} | ${appName}`"
+        />
+        <meta
+            property="og:description"
+            :content="`Edit group ${group.name} to start splitting bills among your friends, family, or colleagues!`"
+        />
     </Head>
 
     <div>

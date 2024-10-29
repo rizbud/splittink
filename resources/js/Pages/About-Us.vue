@@ -7,6 +7,11 @@ const appName = import.meta.env.VITE_APP_NAME;
 <template>
     <Head>
         <title>About Us | {{ appName }}</title>
+        <meta property="og:title" :content="'About Us | ' + appName" />
+        <meta
+            property="og:description"
+            content="Welcome to Splitt.ink, the easiest way to split bills among your group!"
+        />
     </Head>
 
     <div class="flex flex-col gap-4">

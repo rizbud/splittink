@@ -72,7 +72,15 @@ const handleSettle = async () => {
 
 <template>
     <Head>
-        <title>{{ group.name }} | {{ appName }}</title>
+        <title>Group {{ group.name }} | {{ appName }}</title>
+        <meta
+            property="og:title"
+            :content="`Group ${group.name} | ${appName}`"
+        />
+        <meta
+            property="og:description"
+            :content="`Split bills in ${group.name} with ease!`"
+        />
     </Head>
 
     <div>

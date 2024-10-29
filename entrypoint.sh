@@ -21,6 +21,13 @@ php artisan route:clear
 echo "Starting cron..."
 cron &
 
+# Set permissions
+echo "Setting permissions..."
+chown -R www-data:www-data /var/www
+chmod -R 775 /var/www
+chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/database
+chmod -R 775 /var/www/storage /var/www/bootstrap/cache /var/www/database
+
 # Start supervisord
 echo "Starting supervisord..."
 exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf

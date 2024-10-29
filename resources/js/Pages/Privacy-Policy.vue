@@ -8,6 +8,11 @@ const appName = import.meta.env.VITE_APP_NAME;
 <template>
     <Head>
         <title>Privacy Policy | {{ appName }}</title>
+        <meta property="og:title" :content="'Privacy Policy | ' + appName" />
+        <meta
+            property="og:description"
+            content="Splitt.ink is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and disclose your personal information."
+        />
     </Head>
 
     <div class="flex flex-col gap-4">

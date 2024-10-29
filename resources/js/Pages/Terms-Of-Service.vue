@@ -8,6 +8,11 @@ const appName = import.meta.env.VITE_APP_NAME;
 <template>
     <Head>
         <title>Terms of Service | {{ appName }}</title>
+        <meta property="og:title" :content="'Terms of Service | ' + appName" />
+        <meta
+            property="og:description"
+            content="Splitt.ink provides a free, registration-free platform to help users split bills and track shared expenses."
+        />
     </Head>
 
     <div class="flex flex-col gap-4">

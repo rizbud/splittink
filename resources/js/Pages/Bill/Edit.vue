@@ -10,6 +10,14 @@ const { bill, group, bill_participants, currencies } = usePage().props;
 <template>
     <Head>
         <title>Edit Bill {{ bill.name }} | {{ appName }}</title>
+        <meta
+            property="og:title"
+            :content="`Edit Bill ${bill.name} | ${appName}`"
+        />
+        <meta
+            property="og:description"
+            :content="`Edit bill ${bill.name} to split among your friends, family, or colleagues!`"
+        />
     </Head>
 
     <div>

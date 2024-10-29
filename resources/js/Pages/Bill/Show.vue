@@ -10,6 +10,11 @@ const { bill, group, bill_participants, currencies } = usePage().props;
 <template>
     <Head>
         <title>Bill {{ bill.name }} | {{ appName }}</title>
+        <meta property="og:title" :content="`Bill ${bill.name} | ${appName}`" />
+        <meta
+            property="og:description"
+            :content="`Bill ${bill.name} in group ${group.name}`"
+        />
     </Head>
 
     <div class="flex flex-col gap-4">
